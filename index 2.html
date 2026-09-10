@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<title>词链｜单词对对碰</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f5f7fb;color:#172033}button{font:inherit}#app{max-width:520px;margin:auto;min-height:100vh;background:#f5f7fb}.screen{display:none;padding:22px 18px 92px;min-height:100vh}.screen.active{display:block}.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}.brand{font-weight:800;font-size:25px}.sub{color:#788196;font-size:13px;margin-top:3px}.pill{background:#fff;border:1px solid #e5e9f2;border-radius:999px;padding:8px 11px;font-size:13px}.hero{background:#111827;color:#fff;border-radius:26px;padding:27px 22px;box-shadow:0 15px 35px #11182718}.hero h1{font-size:34px;line-height:1.08;margin:0 0 12px}.hero p{color:#cbd5e1;line-height:1.6;margin:0}.primary{width:100%;border:0;border-radius:16px;background:#fff;color:#111827;padding:15px;font-weight:800;margin-top:22px}.card{background:#fff;border:1px solid #e7ebf3;border-radius:22px;padding:18px;margin-top:14px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.stat{background:#fff;border:1px solid #e7ebf3;border-radius:17px;padding:14px}.num{font-size:24px;font-weight:800}.label{font-size:12px;color:#8992a5;margin-top:3px}.progress{height:8px;background:#e8ecf3;border-radius:99px;overflow:hidden}.bar{height:100%;width:0;background:#111827;transition:.25s}.wordbox{text-align:center;padding:25px 10px}.word{font-size:43px;font-weight:850;letter-spacing:-1px}.meaning{font-size:14px;color:#7b8497;margin-top:7px}.options{display:grid;gap:11px;margin-top:15px}.opt{border:1px solid #dfe4ee;background:#fff;border-radius:16px;padding:16px;text-align:left;font-weight:650;min-height:56px}.opt:active{transform:scale(.99)}.opt.correct{background:#eaf8ef;border-color:#64c889}.opt.wrong{background:#fff0f0;border-color:#ef7e7e}.feedback{text-align:center;min-height:25px;margin:12px 0;color:#687286;font-size:14px}.hud{display:flex;justify-content:space-between;font-size:13px;color:#697388}.timer{font-weight:800}.result{text-align:center}.bigscore{font-size:58px;font-weight:900;margin:18px 0 5px}.bottom{position:fixed;bottom:0;left:0;right:0;max-width:520px;margin:auto;background:#fff;border-top:1px solid #e6eaf2;display:grid;grid-template-columns:repeat(3,1fr);padding:9px 10px calc(9px + env(safe-area-inset-bottom));z-index:5}.navbtn{border:0;background:none;color:#7d8799;padding:8px 0}.navbtn.active{color:#111827;font-weight:800}.listrow{display:flex;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid #edf0f5}.listrow:last-child{border-bottom:0}.tag{font-size:11px;background:#eef1f6;border-radius:8px;padding:5px 7px;color:#6c7587}.muted{color:#8992a5}.hidden{display:none!important}.secondary{width:100%;border:1px solid #dfe4ee;background:#fff;border-radius:15px;padding:14px;font-weight:700;margin-top:10px}.toast{position:fixed;top:18px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;border-radius:999px;padding:10px 15px;font-size:13px;opacity:0;pointer-events:none;transition:.2s;z-index:10}.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div id="app">
+<section id="home" class="screen active">
+ <div class="top"><div><div class="brand">词链</div><div class="sub">WordChain · 单词对对碰</div></div><div style="display:flex;gap:8px;align-items:center"><button id="soundBtn" class="pill" type="button">🔊 音效</button><div class="pill">考研 × 六级</div></div></div>
+ <div class="hero"><h1>把背单词，<br>变成一场游戏。</h1><p>看到英文，快速找到对应中文。连续答对会形成连击，你的错误会自动进入记忆链。</p><button id="startBtn" class="primary">开始对对碰 →</button></div>
+ <div class="stats" style="margin-top:14px"><div class="stat"><div id="homeMastery" class="num">0%</div><div class="label">当前熟练度</div></div><div class="stat"><div id="homeBest" class="num">0</div><div class="label">最高连击</div></div><div class="stat"><div id="homeWrong" class="num">0</div><div class="label">待复习</div></div></div>
+ <div class="card"><b>今天的任务</b><div style="margin:12px 0 8px" class="progress"><div id="homeBar" class="bar"></div></div><div class="muted" id="homeTask">完成 10 道题，建立第一条记忆链</div></div>
+</section>
+<section id="game" class="screen">
+ <div class="top"><div><div class="brand">单词对对碰</div><div class="sub" id="qCount">第 1 / 10 题</div></div><div class="pill">连击 <b id="combo">0</b></div></div>
+ <div class="hud"><span>得分 <b id="score">0</b></span><span class="timer">⏱ <b id="time">15</b>s</span></div>
+ <div class="card wordbox"><div id="word" class="word">abandon</div><div id="hint" class="meaning">请选择最匹配的中文含义</div></div>
+ <div id="options" class="options"></div><div id="feedback" class="feedback"></div>
+ <button id="quitBtn" class="secondary">结束本局</button>
+</section>
+<section id="result" class="screen">
+ <div class="top"><div><div class="brand">本局完成</div><div class="sub">这一次，你又记住了一点</div></div></div>
+ <div class="card result"><div class="muted">本局得分</div><div id="finalScore" class="bigscore">0</div><div id="finalText" class="muted">继续保持</div></div>
+ <div class="stats"><div class="stat"><div id="finalCorrect" class="num">0/10</div><div class="label">答对</div></div><div class="stat"><div id="finalCombo" class="num">0</div><div class="label">最高连击</div></div><div class="stat"><div id="finalNewWrong" class="num">0</div><div class="label">新错词</div></div></div>
+ <button id="againBtn" class="secondary">再来一局</button><button id="homeBtn" class="secondary">回到首页</button>
+</section>
+<section id="chain" class="screen"><div class="top"><div><div class="brand">记忆链</div><div class="sub">你的薄弱词会在这里留下痕迹</div></div></div><div class="card"><div style="font-size:13px;color:#8992a5;margin-bottom:8px">累计熟练度</div><div style="font-size:34px;font-weight:900" id="chainMastery">0%</div><div class="progress" style="margin-top:10px"><div id="chainBar" class="bar"></div></div></div><div class="card"><b>最近需要巩固</b><div id="wrongList" style="margin-top:7px"></div></div></section>
+<section id="report" class="screen"><div class="top"><div><div class="brand">学习报告</div><div class="sub">看看你的进步</div></div></div><div class="card"><div class="listrow"><span>完成局数</span><b id="games">0</b></div><div class="listrow"><span>累计答题</span><b id="answered">0</b></div><div class="listrow"><span>累计答对</span><b id="correctTotal">0</b></div><div class="listrow"><span>最高连击</span><b id="bestTotal">0</b></div></div><div class="card"><b>玩法说明</b><p class="muted" style="line-height:1.7">每局 10 题。答对获得分数并增加连击；答错的词会进入待复习列表。后续版本会在这里加入词根、搭配、例句和更多玩法。</p></div></section>
+<nav class="bottom"><button class="navbtn active" data-screen="home">🏠<br><small>首页</small></button><button class="navbtn" data-screen="chain">🔗<br><small>记忆链</small></button><button class="navbtn" data-screen="report">📊<br><small>报告</small></button></nav>
+<div id="toast" class="toast"></div>
+</div>
+<script>
+(function(){
+'use strict';
+const WORDS=[
+['abandon','放弃'],['abstract','抽象的'],['accommodate','容纳；适应'],['accurate','准确的'],['acknowledge','承认；确认'],['adequate','足够的；适当的'],['advocate','提倡；拥护'],['allocate','分配'],['ambiguous','模棱两可的'],['anticipate','预期；预料'],['apparent','明显的；表面的'],['assess','评估'],['assume','假定；承担'],['bias','偏见'],['capacity','能力；容量'],['coherent','连贯的'],['comprehensive','全面的'],['contradict','反驳；与…矛盾'],['crucial','至关重要的'],['decline','下降；拒绝'],['derive','源于；获得'],['diminish','减少；削弱'],['distinguish','区分；辨别'],['diverse','多样的'],['emerge','出现；浮现'],['enhance','增强；提高'],['equivalent','等价的；相等的'],['explicit','明确的'],['facilitate','促进；使便利'],['fundamental','基本的；根本的'],['inevitable','不可避免的'],['infer','推断'],['interpret','解释；诠释'],['justify','证明…合理'],['maintain','维持；主张'],['modify','修改'],['notion','观念；概念'],['obtain','获得'],['persist','坚持；持续'],['plausible','貌似合理的'],['precise','精确的'],['profound','深刻的'],['reject','拒绝'],['reinforce','加强；巩固'],['relevant','相关的'],['retain','保留'],['significant','重要的；显著的'],['subsequent','随后的'],['sustain','维持；支撑'],['trigger','引发；触发'],['undergo','经历；遭受'],['valid','有效的；合理的'],['whereas','然而；而'],['contemporary','当代的'],['conventional','传统的；惯例的'],['diverse','多样的'],['eliminate','消除'],['fundamental','根本的']
+];
+const $=id=>document.getElementById(id);
+let state=JSON.parse(localStorage.getItem('wordchain_v2')||'null')||{games:0,answered:0,correct:0,best:0,wrong:{}};
+let game={list:[],i:0,score:0,combo:0,bestCombo:0,correct:0,locked:false,timer:null,time:15,newWrong:0};
+let soundOn=localStorage.getItem('wordchain_sound')!=='0'; let audioCtx=null;
+function ensureAudio(){ if(!soundOn)return; try{audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)(); if(audioCtx.state==='suspended')audioCtx.resume();}catch(e){} }
+function tone(freq,dur,type='sine',vol=.045,delay=0){ if(!soundOn)return; ensureAudio(); if(!audioCtx)return; const o=audioCtx.createOscillator(),g=audioCtx.createGain(); o.type=type;o.frequency.value=freq;g.gain.setValueAtTime(.0001,audioCtx.currentTime+delay);g.gain.exponentialRampToValueAtTime(vol,audioCtx.currentTime+delay+.015);g.gain.exponentialRampToValueAtTime(.0001,audioCtx.currentTime+delay+dur);o.connect(g);g.connect(audioCtx.destination);o.start(audioCtx.currentTime+delay);o.stop(audioCtx.currentTime+delay+dur+.03);}
+function sfx(name){ if(!soundOn)return; if(name==='click')tone(520,.06,'sine',.025); if(name==='ok'){tone(660,.10,'sine',.045);tone(880,.14,'sine',.04,.08)} if(name==='bad'){tone(220,.16,'sawtooth',.025);tone(165,.18,'sawtooth',.02,.08)} if(name==='timeout'){tone(300,.12,'square',.02);tone(220,.18,'square',.018,.1)} if(name==='combo'){tone(700,.07,'triangle',.03);tone(1000,.11,'triangle',.03,.07)} if(name==='finish'){tone(523,.12,'sine',.04);tone(659,.12,'sine',.04,.1);tone(784,.22,'sine',.05,.2)} }
+function updateSoundBtn(){const b=$('soundBtn');if(b)b.textContent=soundOn?'🔊 音效':'🔇 静音';}
+function save(){localStorage.setItem('wordchain_v2',JSON.stringify(state));renderStats()}
+function renderStats(){
+ const mastery=state.answered?Math.round(state.correct/state.answered*100):0;
+ $('homeMastery').textContent=mastery+'%';$('homeBest').textContent=state.best;$('homeWrong').textContent=Object.keys(state.wrong).length;$('homeBar').style.width=Math.min(100,state.games?100:0)+'%';
+ $('chainMastery').textContent=mastery+'%';$('chainBar').style.width=mastery+'%';$('games').textContent=state.games;$('answered').textContent=state.answered;$('correctTotal').textContent=state.correct;$('bestTotal').textContent=state.best;
+ const entries=Object.entries(state.wrong).sort((a,b)=>b[1]-a[1]).slice(0,10);$('wrongList').innerHTML=entries.length?entries.map(([w,n])=>{const x=WORDS.find(v=>v[0]===w);return '<div class="listrow"><span><b>'+w+'</b><br><span class="muted">'+(x?x[1]:'')+'</span></span><span class="tag">错 '+n+' 次</span></div>'}).join(''):'<div class="muted" style="padding:18px 0">暂时没有错词，先来一局吧。</div>';
+}
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active');document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.screen===id));window.scrollTo(0,0)}
+function shuffle(a){return a.map(x=>[Math.random(),x]).sort((x,y)=>x[0]-y[0]).map(x=>x[1])}
+function toast(t){$('toast').textContent=t;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),1300)}
+function start(){
+ clearInterval(game.timer);game.list=shuffle(WORDS).slice(0,10);game.i=0;game.score=0;game.combo=0;game.bestCombo=0;game.correct=0;game.locked=false;game.newWrong=0;show('game');next();
+}
+function next(){
+ clearInterval(game.timer);game.locked=false;game.time=15;$('time').textContent=15;$('score').textContent=game.score;$('combo').textContent=game.combo;$('feedback').textContent='';
+ if(game.i>=game.list.length){finish();return}
+ const cur=game.list[game.i], choices=shuffle([cur,...shuffle(WORDS.filter(x=>x[0]!==cur[0])).slice(0,3)]);$('qCount').textContent='第 '+(game.i+1)+' / '+game.list.length+' 题';$('word').textContent=cur[0];$('hint').textContent='请选择最匹配的中文含义';
+ $('options').innerHTML=choices.map(c=>'<button class="opt" data-answer="'+c[0].replace(/"/g,'&quot;')+'">'+c[1]+'</button>').join('');document.querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>{sfx('click');answer(b.dataset.answer,b)}));
+ game.timer=setInterval(()=>{game.time--; $('time').textContent=game.time;if(game.time<=0){clearInterval(game.timer);answer('__TIMEOUT__',null)}},1000)
+}
+function answer(ans,btn){if(game.locked)return;game.locked=true;clearInterval(game.timer);const cur=game.list[game.i];const ok=ans===cur[0];document.querySelectorAll('.opt').forEach(b=>{if(b.dataset.answer===cur[0])b.classList.add('correct')});
+ state.answered++;if(ok){state.correct++;game.correct++;game.combo++;game.bestCombo=Math.max(game.bestCombo,game.combo);sfx(game.combo>=3?'combo':'ok');state.best=Math.max(state.best,game.bestCombo);const add=100+Math.max(0,game.combo-1)*20+game.time*2;game.score+=add;$('feedback').textContent='✓ 正确  +'+add+' 分';if(btn)btn.classList.add('correct');}else{game.combo=0;sfx(ans==='__TIMEOUT__'?'timeout':'bad');if(btn)btn.classList.add('wrong');if(!state.wrong[cur[0]]){state.wrong[cur[0]]=0;game.newWrong++}state.wrong[cur[0]]++;$('feedback').textContent=ans==='__TIMEOUT__'?'⏱ 时间到':'✕ 正确答案：'+cur[1]}
+ save();setTimeout(()=>{game.i++;next()},650)}
+function finish(){clearInterval(game.timer);state.games++;save();sfx('finish');$('finalScore').textContent=game.score;$('finalCorrect').textContent=game.correct+'/10';$('finalCombo').textContent=game.bestCombo;$('finalNewWrong').textContent=game.newWrong;$('finalText').textContent=game.correct===10?'完美！这组词已经很稳了。':game.correct>=7?'不错，继续把错词变成记忆链。':'没关系，错词正是下一轮的重点。';show('result')}
+$('startBtn').addEventListener('click',()=>{ensureAudio();sfx('click');start()});$('soundBtn').addEventListener('click',()=>{soundOn=!soundOn;localStorage.setItem('wordchain_sound',soundOn?'1':'0');updateSoundBtn();if(soundOn){ensureAudio();sfx('ok')}});$('againBtn').addEventListener('click',start);$('homeBtn').addEventListener('click',()=>show('home'));$('quitBtn').addEventListener('click',()=>{clearInterval(game.timer);show('home');toast('本局已结束')});document.querySelectorAll('.navbtn').forEach(b=>b.addEventListener('click',()=>{clearInterval(game.timer);show(b.dataset.screen);renderStats()}));renderStats();updateSoundBtn();
+})();
+</script>
+</body></html>
