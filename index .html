@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f5f7fb">
+<title>词链 · 单词对对碰 V2.3</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f5f7fb;color:#172033;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",sans-serif}
+.app{max-width:760px;margin:auto;min-height:100vh;padding-bottom:84px}
+header{position:sticky;top:0;background:#f5f7fbf2;backdrop-filter:blur(12px);padding:14px 16px 10px;border-bottom:1px solid #e5e7eb;z-index:3}
+.top{display:flex;justify-content:space-between}.brand{font-size:21px;font-weight:900}.sub{font-size:12px;color:#6b7280;margin-top:3px}.pill{background:#eef2ff;color:#3730a3;padding:7px 10px;border-radius:99px;font-weight:800;font-size:12px}
+main{padding:16px}.screen{display:none}.active{display:block}.card{background:white;border:1px solid #e5e7eb;border-radius:20px;padding:18px;box-shadow:0 6px 24px #1118270d}
+.hero{background:linear-gradient(135deg,#111827,#312e81);color:white;border:0}.hero h1{font-size:29px;margin:0 0 8px}.hero p{line-height:1.65;color:#dbeafe}
+.btn{border:0;border-radius:14px;padding:13px 16px;font-weight:800;cursor:pointer}.primary{background:#4f46e5;color:#fff}.ghost{background:#f3f4f6;color:#374151}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.stat{background:#f8fafc;border-radius:15px;padding:14px}.stat b{display:block;font-size:22px}.stat span{font-size:12px;color:#6b7280}
+.section{font-size:17px;font-weight:900;margin:20px 0 10px}.gamehead{display:flex;justify-content:space-between;align-items:center}.timer{font-size:23px;font-weight:900}.meter{height:8px;background:#e5e7eb;border-radius:8px;margin:12px 0;overflow:hidden}.meter i{display:block;height:100%;background:#4f46e5}
+.word{text-align:center;font-size:40px;font-weight:950;margin-top:15px}.phon{text-align:center;color:#6b7280;margin:5px}.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}.choice{min-height:86px;background:white;border:2px solid #e5e7eb;border-radius:17px;padding:12px;text-align:left}.choice b{display:block}.choice small{color:#6b7280}.ok{border-color:#22c55e!important;background:#f0fdf4!important}.no{border-color:#ef4444!important;background:#fef2f2!important}
+.chain{display:flex;gap:8px;overflow:auto;padding:5px 0 10px}.node{min-width:95px;background:#eef2ff;color:#3730a3;border-radius:14px;padding:10px}.node b{display:block}.node small{color:#6b7280}
+.row{display:flex;justify-content:space-between;padding:13px 0;border-bottom:1px solid #e5e7eb}.progress{width:90px;height:7px;background:#e5e7eb;border-radius:7px;overflow:hidden;margin-top:7px}.progress i{display:block;height:100%;background:#6366f1}
+.tabs{position:fixed;bottom:0;left:0;right:0;background:#fffffff5;border-top:1px solid #e5e7eb;display:flex;justify-content:center;z-index:5}.tabs button{width:25%;max-width:190px;border:0;background:transparent;padding:10px 2px;color:#6b7280;font-size:11px}.tabs .sel{color:#4f46e5;font-weight:900}.ico{display:block;font-size:20px}
+.toast{position:fixed;bottom:75px;left:50%;transform:translateX(-50%);background:#111827;color:white;padding:10px 14px;border-radius:12px;opacity:0;transition:.2s;z-index:10}.show{opacity:1}
+.load{font-size:12px;color:#6b7280;margin-top:9px}.soundbar{display:flex;gap:8px;justify-content:center;margin-top:9px}.soundbar button{border:1px solid #e5e7eb;background:#fff;border-radius:12px;padding:9px 12px;font-weight:700}
+</style>
+</head>
+<body>
+<div class="app">
+<header><div class="top"><div><div class="brand">词链 · 单词对对碰</div><div class="sub">考研 × CET-6 · 游戏化词汇知识链</div></div><div class="pill" id="lv">Lv.1</div></div></header>
+<main>
+<section id="home" class="screen active">
+<div class="card hero"><h1>把单词连成一张网</h1><p>通过配对、辨析和错词回流，把一个单词和一整组知识连接起来。</p>
+<button class="btn primary" onclick="start()">🎮 开始对对碰</button>
+<div class="load" id="loadStatus">正在加载 CET-6 + 考研词库…</div></div>
+<div class="grid"><div class="stat"><b id="mastery">0%</b><span>总体掌握度</span></div><div class="stat"><b id="best">0</b><span>最高连击</span></div><div class="stat"><b id="known">0</b><span>已掌握</span></div><div class="stat"><b id="wrong">0</b><span>待复习</span></div></div>
+<div class="section">今日推荐</div><div class="card"><b>10 分钟知识链训练</b><p class="sub">答对增强连接，答错自动进入复习链。</p></div>
+</section>
+
+<section id="game" class="screen">
+<div class="gamehead"><b id="round">第 1 / 10 题</b><div class="timer" id="timer">20</div></div>
+<div class="meter"><i id="meter" style="width:10%"></i></div>
+<div class="card"><div class="word" id="word">—</div><div class="phon" id="phon">—</div>
+<div class="soundbar"><button onclick="speak(true)">🔊 播放发音</button><button onclick="toggleSound()" id="soundBtn">🔔 音效：开</button></div>
+<div class="choices" id="choices"></div></div>
+<div class="section">当前知识链</div><div class="chain" id="gamechain"></div>
+</section>
+
+<section id="chain" class="screen"><div class="section">我的知识链</div><div class="card"><b>你不是在记一个词，而是在建立连接。</b><p class="sub">每次答题都会更新熟练度。</p><div class="chain" id="chainnodes"></div></div><div class="section">最近强化</div><div class="card" id="recent"></div></section>
+<section id="review" class="screen"><div class="section">错词回流</div><div class="card"><b>错题不是惩罚，是第二条记忆路径。</b><p class="sub">错过的词会优先进入下一轮训练。</p></div><div class="section" id="wronglist"></div></section>
+<section id="report" class="screen"><div class="section">学习报告</div><div class="grid"><div class="stat"><b id="ans">0</b><span>累计答题</span></div><div class="stat"><b id="acc">0%</b><span>正确率</span></div><div class="stat"><b id="rbest">0</b><span>最高连击</span></div><div class="stat"><b id="rknown">0</b><span>已掌握</span></div></div><div class="section">掌握度</div><div class="card" id="masteries"></div></section>
+</main>
+<nav class="tabs"><button class="sel" data-s="home"><span class="ico">🏠</span>首页</button><button data-s="game"><span class="ico">🎮</span>对对碰</button><button data-s="chain"><span class="ico">🔗</span>知识链</button><button data-s="review"><span class="ico">🧠</span>复习</button></nav>
+<div class="toast" id="toast"></div>
+</div>
+
+<script>
+const SOURCES=[
+"https://cdn.jsdelivr.net/gh/KyleBing/english-vocabulary@master/4%20%E5%85%AD%E7%BA%A7-%E4%B9%B1%E5%BA%8F.txt",
+"https://cdn.jsdelivr.net/gh/KyleBing/english-vocabulary@master/5%20%E8%80%83%E7%A0%94-%E4%B9%B1%E5%BA%8F.txt",
+"https://raw.githubusercontent.com/KyleBing/english-vocabulary/master/4%20%E5%85%AD%E7%BA%A7-%E4%B9%B1%E5%BA%8F.txt",
+"https://raw.githubusercontent.com/KyleBing/english-vocabulary/master/5%20%E8%80%83%E7%A0%94-%E4%B9%B1%E5%BA%8F.txt"
+];
+const FALLBACK=[
+["abandon","放弃；遗弃"],["abstract","抽象的；摘要"],["accommodate","容纳；适应"],["accurate","准确的"],["acknowledge","承认；认可"],["adequate","足够的；适当的"],["advocate","提倡；拥护"],["allocate","分配"],["ambiguous","模棱两可的"],["anticipate","预期；预料"],["apparent","明显的；表面上的"],["assess","评估"],["assume","假设；承担"],["bias","偏见；使偏向"],["capacity","能力；容量"],["coherent","连贯的；一致的"],["comprehensive","全面的"],["contradict","反驳；与……矛盾"],["crucial","至关重要的"],["decline","下降；拒绝"]
+].map((x,i)=>({id:i,w:x[0],c:x[1],p:""}));
+
+let W=FALLBACK, D=JSON.parse(localStorage.getItem("wc")||"null")||{a:0,c:0,b:0,w:[],m:{}};
+let G={list:[],i:0,st:0,score:0,t:20,cur:null,int:null,done:false};
+let soundOn=true, audioCtx=null;
+
+function cleanLine(line){
+  line=line.trim(); if(!line)return null;
+  let m=line.match(/^([A-Za-z][A-Za-z'’-]*)(?:\s+)(?:[a-z]+\.\s*)?(.+)$/);
+  if(!m)return null;
+  let w=m[1].toLowerCase(), c=m[2].trim();
+  if(w.length<2||c.length<1)return null;
+  return {w,c,p:""};
+}
+async function getSource(url){
+  const r=await fetch(url,{cache:"force-cache",mode:"cors"});
+  if(!r.ok)throw new Error("HTTP "+r.status);
+  return await r.text();
+}
+async function loadWords(){
+  let texts=[];
+  for(let u of SOURCES){
+    try{let t=await getSource(u); if(t.length>1000) texts.push(t);}catch(e){}
+    if(texts.length>=2)break;
+  }
+  const map=new Map();
+  texts.forEach(t=>t.split(/\r?\n/).forEach(line=>{let x=cleanLine(line);if(x&&!map.has(x.w))map.set(x.w,{id:map.size,w:x.w,c:x.c,p:""})}));
+  if(map.size>=1000){
+    W=[...map.values()];
+    loadStatus.textContent=`词库已加载：${W.length.toLocaleString()} 词 · CET-6 + 考研`;
+  }else{
+    W=FALLBACK;
+    loadStatus.textContent="在线大词库暂时不可用，已启用备用词库；下次打开会自动重试。";
+  }
+  refresh();
+}
+loadWords();
+
+const s=id=>D.m[id]||0;
+function save(){localStorage.setItem("wc",JSON.stringify(D));refresh()}
+function show(id){document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("sel",x.dataset.s===id));refresh()}
+document.querySelectorAll(".tabs button").forEach(x=>x.onclick=()=>show(x.dataset.s));
+
+function refresh(){
+  let avg=W.length?Math.round(W.reduce((a,x)=>a+s(x.id),0)/W.length):0;
+  mastery.textContent=avg+"%";best.textContent=D.b;known.textContent=W.filter(x=>s(x.id)>=80).length;wrong.textContent=D.w.length;lv.textContent="Lv."+(1+Math.floor(D.c/20));
+  ans.textContent=D.a;acc.textContent=(D.a?Math.round(D.c/D.a*100):0)+"%";rbest.textContent=D.b;rknown.textContent=W.filter(x=>s(x.id)>=80).length;
+  chainnodes.innerHTML=W.filter(x=>s(x.id)>0).sort((a,b)=>s(b.id)-s(a.id)).slice(0,10).map(x=>`<div class=node><b>${x.w}</b><small>${x.c}</small></div>`).join("")||'<span class=sub>开始一轮训练后，这里会出现你的知识链。</span>';
+  recent.innerHTML=W.filter(x=>s(x.id)>0).sort((a,b)=>s(b.id)-s(a.id)).slice(0,10).map(row).join("")||"暂无记录";
+  wronglist.innerHTML=D.w.length?D.w.map(id=>{let x=W.find(y=>y.id===id);return x?`<div class=card style="margin-bottom:8px"><b>${x.w}</b><div class=sub>${x.c}</div><button class="btn primary" style="margin-top:8px" onclick="review('${x.w.replace(/'/g,"&#39;")}')">再来一次</button></div>`:""}).join(""):"🎉 暂无错词";
+  masteries.innerHTML=[...W].sort((a,b)=>s(b.id)-s(a.id)).slice(0,12).map(row).join("");
+}
+function row(x){let v=s(x.id);return `<div class=row><div><b>${x.w}</b><div class=sub>${x.c}</div></div><div style="text-align:right"><b>${v}%</b><div class=progress><i style="width:${v}%"></i></div></div></div>`}
+
+function start(){
+  if(W.length<50){toast("词库还在加载，请稍等一下");return}
+  show("game");G.list=[...W].sort((a,b)=>s(a.id)-s(b.id)+(Math.random()-.5)*20).slice(0,10);G.i=0;G.st=0;G.score=0;next();
+}
+function review(word){let target=W.find(x=>x.w===word);G.list=[target,...W.filter(x=>x.w!==word).sort(()=>Math.random()-.5).slice(0,9)];G.i=0;G.st=0;G.score=0;show("game");next()}
+
+function next(){
+  if(G.i>=G.list.length){clearInterval(G.int);show("report");toast("本轮完成！");return}
+  G.cur=G.list[G.i];G.t=20;G.done=false;
+  round.textContent=`第 ${G.i+1} / ${G.list.length} 题`;timer.textContent=20;meter.style.width=((G.i+1)/G.list.length*100)+"%";
+  word.textContent=G.cur.w;phon.textContent=G.cur.p||"";
+  let opts=[G.cur,...W.filter(x=>x.id!==G.cur.id).sort(()=>Math.random()-.5).slice(0,3)].sort(()=>Math.random()-.5);
+  choices.innerHTML=opts.map(x=>`<button class="choice" onclick="answer(${x.id},this)"><b>${x.c}</b><small>词义配对</small></button>`).join("");
+  gamechain.innerHTML=G.list.slice(Math.max(0,G.i-2),G.i+1).map(x=>`<div class=node><b>${x.w}</b><small>${x.c}</small></div>`).join("");
+  clearInterval(G.int);G.int=setInterval(()=>{G.t--;timer.textContent=G.t;if(G.t<=0)answer(-1,null)},1000);
+  if(soundOn)setTimeout(()=>speak(false),80);
+}
+function answer(id,el){
+  if(!G.cur||G.done)return;G.done=true;clearInterval(G.int);
+  let ok=id===G.cur.id;D.a++;
+  if(ok){D.c++;G.st++;G.score+=100+G.st*10;D.m[G.cur.id]=Math.min(100,s(G.cur.id)+8+Math.min(G.st,5));D.b=Math.max(D.b,G.st);tone(740,.08);toast("✓ 配对成功！知识链增强")}
+  else{G.st=0;D.m[G.cur.id]=Math.max(0,s(G.cur.id)-5);if(!D.w.includes(G.cur.id))D.w.unshift(G.cur.id);D.w=D.w.slice(0,30);tone(180,.12);toast("× 错词已回流")}
+  document.querySelectorAll(".choice").forEach(b=>{if(b.textContent.includes(G.cur.c))b.classList.add("ok")});if(el&&!ok)el.classList.add("no");
+  save();setTimeout(()=>{G.i++;next()},650);
+}
+function unlockAudio(){
+  try{audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==="suspended")audioCtx.resume();tone(520,.06);return true}catch(e){return false}
+}
+function tone(freq,dur){
+  if(!soundOn)return;
+  try{
+    audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();
+    if(audioCtx.state==="suspended")audioCtx.resume();
+    const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type="sine";o.frequency.value=freq;g.gain.value=.045;
+    o.connect(g);g.connect(audioCtx.destination);const n=audioCtx.currentTime;g.gain.setValueAtTime(.045,n);g.gain.exponentialRampToValueAtTime(.001,n+dur);o.start(n);o.stop(n+dur);
+  }catch(e){}
+}
+function speak(fromButton){
+  if(!G.cur)return;
+  try{
+    const u=new SpeechSynthesisUtterance(G.cur.w);u.lang="en-US";u.rate=.82;u.volume=1;
+    speechSynthesis.cancel();
+    if(typeof speechSynthesis.onvoiceschanged!=="undefined")speechSynthesis.getVoices();
+    speechSynthesis.speak(u);
+    if(fromButton){unlockAudio();toast("🔊 正在播放");}
+  }catch(e){toast("当前浏览器暂时无法播放语音")}
+}
+function toggleSound(){
+  soundOn=!soundOn;soundBtn.textContent=soundOn?"🔔 音效：开":"🔕 音效：关";
+  if(soundOn){unlockAudio();toast("音效已开启")}else toast("音效已关闭");
+}
+document.addEventListener("click",e=>{if(e.target.closest("button"))unlockAudio()},{once:true});
+refresh();
+</script>
+</body>
+</html>
